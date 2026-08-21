@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { BadgeCheck, Clock, Layers, Target } from "lucide-react";
 import {
   CartesianGrid,
@@ -18,8 +18,14 @@ import {
 import { Card, Eyebrow, KindBadge, Ring, StatTile, StatusBadge } from "@/components/primitives";
 import { useChartColors } from "@/components/theme";
 import { evidence, matches, profile, radarData, skillGrowth } from "@/data/skillpass";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/")({
+  beforeLoad: () => {
+    if (typeof window !== "undefined" && window.localStorage.getItem("skillpass-authenticated") !== "true") {
+      throw redirect({ to: "/login" });
+    }
+  },
   head: () => ({
     meta: [
       { title: "SkillPass — Verified Skill Passport & Explainable Matching" },
@@ -39,9 +45,23 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
+  const navigate = useNavigate();
+  const [authenticated, setAuthenticated] = useState(false);
   const c = useChartColors();
   const recent = evidence.slice(0, 4);
   const top = [...matches].sort((a, b) => b.score - a.score).slice(0, 3);
+
+  useEffect(() => {
+    if (window.localStorage.getItem("skillpass-authenticated") !== "true") {
+      void navigate({ to: "/login", replace: true });
+      return;
+    }
+    setAuthenticated(true);
+  }, [navigate]);
+
+  if (!authenticated) {
+    return null;
+  }
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8">
