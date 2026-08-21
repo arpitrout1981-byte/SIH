@@ -14,9 +14,9 @@ const tabs = [
 
 function BiasBadge() {
   return (
-    <span className="inline-flex items-center gap-2 rounded-sm border border-brass/60 bg-[#1E3B2C] px-2.5 py-1.5 dark:bg-[#182620]">
+    <span className="inline-flex items-center gap-2 rounded-sm border border-brass/60 bg-bottle px-2.5 py-1.5">
       <ShieldCheck size={18} strokeWidth={1.5} className="text-brass" />
-      <span className="text-[13px] font-medium leading-[18px] text-white dark:text-[#EDEEE7]">
+      <span className="text-[13px] font-medium leading-[18px] text-primary-foreground">
         Bias-free matching active
       </span>
     </span>

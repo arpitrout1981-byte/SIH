@@ -51,24 +51,24 @@
 
 :root {
   --radius: 4px;
-  --color-bg: #f4f5f1;
-  --color-surface-raw: #f4f5f1;
-  --color-text-primary: #14201b;
-  --color-text-secondary: rgba(20, 32, 27, 0.65);
-  --color-border-raw: #c7d0c4;
-  --color-action-primary: #1e3b2c;
-  --color-action-primary-fg: #ffffff;
-  --color-accent-secondary: #a9763d;
-  --color-brass-raw: #a9763d;
-  --color-bottle-raw: #1e3b2c;
-  --color-gap-raw: #9c4a32;
-  --color-focus: #a9763d;
-  --color-linework: rgba(20, 32, 27, 0.5);
+  --color-bg: #ece3cf;
+  --color-surface-raw: #fbf6ea;
+  --color-text-primary: #1c2a1e;
+  --color-text-secondary: rgba(28, 42, 30, 0.66);
+  --color-border-raw: #d3c4a4;
+  --color-action-primary: #1f5c41;
+  --color-action-primary-fg: #fbf6ea;
+  --color-accent-secondary: #b06a2a;
+  --color-brass-raw: #b06a2a;
+  --color-bottle-raw: #1f5c41;
+  --color-gap-raw: #a8442a;
+  --color-focus: #b06a2a;
+  --color-linework: rgba(28, 42, 30, 0.42);
 
-  --chart-primary: #1e3b2c;
-  --chart-secondary: #a9763d;
-  --chart-gap: #9c4a32;
-  --chart-grid: rgba(199, 208, 196, 0.7);
+  --chart-primary: #1f5c41;
+  --chart-secondary: #b06a2a;
+  --chart-gap: #a8442a;
+  --chart-grid: rgba(211, 196, 164, 0.75);
 }
 
 .dark {
