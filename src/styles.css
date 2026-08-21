@@ -5,140 +5,195 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design system definition.
- *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ * SkillPass design system — passports & official documents.
+ * Light mode: paper and ink. Dark mode: the same passport under a desk lamp,
+ * where the metal (brass) catches the light.
  */
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-ring-offset-background: var(--background);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --radius-2xl: 4px;
+
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-text-primary);
+  --color-surface: var(--color-surface-raw);
+  --color-card: var(--color-surface-raw);
+  --color-card-foreground: var(--color-text-primary);
+  --color-popover: var(--color-surface-raw);
+  --color-popover-foreground: var(--color-text-primary);
+  --color-ink: var(--color-text-primary);
+  --color-ink-soft: var(--color-text-secondary);
+  --color-muted-foreground: var(--color-text-secondary);
+  --color-border: var(--color-border-raw);
+  --color-input: var(--color-border-raw);
+  --color-ring: var(--color-focus);
+  --color-primary: var(--color-action-primary);
+  --color-primary-foreground: var(--color-action-primary-fg);
+  --color-secondary: var(--color-accent-secondary);
+  --color-secondary-foreground: var(--color-text-primary);
+  --color-accent: var(--color-accent-secondary);
+  --color-accent-foreground: var(--color-text-primary);
+  --color-brass: var(--color-brass-raw);
+  --color-bottle: var(--color-bottle-raw);
+  --color-gap: var(--color-gap-raw);
+  --color-destructive: var(--color-gap-raw);
+  --color-destructive-foreground: var(--color-action-primary-fg);
+
+  --font-slab: "Roboto Slab", Georgia, serif;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --shadow-float: 0 4px 16px rgba(20, 32, 27, 0.12);
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --radius: 4px;
+  --color-bg: #f4f5f1;
+  --color-surface-raw: #f4f5f1;
+  --color-text-primary: #14201b;
+  --color-text-secondary: rgba(20, 32, 27, 0.65);
+  --color-border-raw: #c7d0c4;
+  --color-action-primary: #1e3b2c;
+  --color-action-primary-fg: #ffffff;
+  --color-accent-secondary: #a9763d;
+  --color-brass-raw: #a9763d;
+  --color-bottle-raw: #1e3b2c;
+  --color-gap-raw: #9c4a32;
+  --color-focus: #a9763d;
+  --color-linework: rgba(20, 32, 27, 0.5);
+
+  --chart-primary: #1e3b2c;
+  --chart-secondary: #a9763d;
+  --chart-gap: #9c4a32;
+  --chart-grid: rgba(199, 208, 196, 0.7);
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  --color-bg: #0f1712;
+  --color-surface-raw: #182620;
+  --color-text-primary: #edeee7;
+  --color-text-secondary: rgba(237, 238, 231, 0.65);
+  --color-border-raw: #3a4a3f;
+  --color-action-primary: #a9763d;
+  --color-action-primary-fg: #0f1712;
+  --color-accent-secondary: #3e6b52;
+  --color-brass-raw: #a9763d;
+  --color-bottle-raw: #3e6b52;
+  --color-gap-raw: #c97a5c;
+  --color-focus: #a9763d;
+  --color-linework: rgba(237, 238, 231, 0.45);
+
+  --chart-primary: #a9763d;
+  --chart-secondary: #3e6b52;
+  --chart-gap: #c97a5c;
+  --chart-grid: rgba(58, 74, 63, 0.9);
 }
 
 @layer base {
   * {
-    border-color: var(--color-border);
+    border-color: var(--color-border-raw);
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 24px;
+    transition:
+      background-color 200ms ease-out,
+      color 200ms ease-out;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-slab);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}
+
+@utility eyebrow {
+  font-family: var(--font-slab);
+  font-size: 11px;
+  line-height: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+@utility doc-card {
+  background-color: var(--color-surface-raw);
+  border: 1px solid var(--color-border-raw);
+  border-radius: 4px;
+  transition: border-color 180ms ease-out;
+}
+
+@utility doc-card-hover {
+  &:hover {
+    border-color: var(--color-brass-raw);
+  }
+}
+
+@utility guilloche {
+  background-image:
+    repeating-linear-gradient(
+      68deg,
+      color-mix(in oklab, var(--color-linework) 22%, transparent) 0 1px,
+      transparent 1px 7px
+    ),
+    repeating-linear-gradient(
+      -68deg,
+      color-mix(in oklab, var(--color-linework) 18%, transparent) 0 1px,
+      transparent 1px 9px
+    ),
+    repeating-radial-gradient(
+      circle at 22% 40%,
+      color-mix(in oklab, var(--color-linework) 16%, transparent) 0 1px,
+      transparent 1px 12px
+    );
+}
+
+@utility unfold {
+  animation: passport-unfold 660ms cubic-bezier(0.16, 1, 0.3, 1) 1 both;
+  transform-origin: top center;
+}
+
+@keyframes passport-unfold {
+  from {
+    opacity: 0;
+    transform: perspective(1200px) rotateX(-14deg) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes passport-unfold {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  * {
+    animation-duration: 220ms !important;
   }
 }
