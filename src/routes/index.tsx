@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { BadgeCheck, Clock, Layers, Target } from "lucide-react";
 import {
   CartesianGrid,
+  Legend,
   Line,
   LineChart,
   PolarAngleAxis,
@@ -90,6 +91,7 @@ function Dashboard() {
                   }}
                   labelStyle={{ color: c.text }}
                 />
+                <Legend wrapperStyle={{ fontSize: 12, color: c.text }} />
                 <Line
                   type="monotone"
                   dataKey="proficiency"
@@ -120,6 +122,7 @@ function Dashboard() {
                 <PolarGrid stroke={c.grid} />
                 <PolarAngleAxis dataKey="category" tick={{ fill: c.text, fontSize: 12 }} />
                 <PolarRadiusAxis domain={[0, 100]} tick={{ fill: c.text, fontSize: 11 }} stroke={c.grid} />
+                <Legend wrapperStyle={{ fontSize: 12, color: c.text }} />
                 <Radar name="You" dataKey="you" stroke={c.primary} fill={c.primary} fillOpacity={0.35} />
                 <Radar name="Cohort benchmark" dataKey="benchmark" stroke={c.secondary} fill={c.secondary} fillOpacity={0.18} />
                 <Tooltip
