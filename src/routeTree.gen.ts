@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EvidenceRouteImport } from './routes/evidence'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as PassportRouteImport } from './routes/passport'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const EvidenceRoute = EvidenceRouteImport.update({
   id: '/evidence',
   path: '/evidence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatchesRoute = MatchesRouteImport.update({
@@ -38,12 +44,14 @@ const PassportRoute = PassportRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/evidence': typeof EvidenceRoute
+  '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/passport': typeof PassportRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/evidence': typeof EvidenceRoute
+  '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/passport': typeof PassportRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/evidence': typeof EvidenceRoute
+  '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/passport': typeof PassportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/evidence' | '/matches' | '/passport'
+  fullPaths: '/' | '/evidence' | '/login' | '/matches' | '/passport'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/evidence' | '/matches' | '/passport'
-  id: '__root__' | '/' | '/evidence' | '/matches' | '/passport'
+  to: '/' | '/evidence' | '/login' | '/matches' | '/passport'
+  id: '__root__' | '/' | '/evidence' | '/login' | '/matches' | '/passport'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EvidenceRoute: typeof EvidenceRoute
+  LoginRoute: typeof LoginRoute
   MatchesRoute: typeof MatchesRoute
   PassportRoute: typeof PassportRoute
 }
@@ -83,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/evidence'
       fullPath: '/evidence'
       preLoaderRoute: typeof EvidenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/matches': {
@@ -105,6 +122,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EvidenceRoute: EvidenceRoute,
+  LoginRoute: LoginRoute,
   MatchesRoute: MatchesRoute,
   PassportRoute: PassportRoute,
 }
