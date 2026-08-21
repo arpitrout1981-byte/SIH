@@ -34,7 +34,7 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  component: Dashboard;
+  component: Dashboard,
 });
 
 function Dashboard() {
