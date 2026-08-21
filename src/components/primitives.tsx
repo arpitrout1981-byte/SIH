@@ -122,9 +122,11 @@ export function Ring({
           className="stroke-primary"
         />
       </svg>
-      <span className="absolute inset-0 flex items-center justify-center font-mono text-[13px] tabular-nums text-ink">
-        {value}%
-      </span>
+      {size >= 48 && (
+        <span className="absolute inset-0 flex items-center justify-center font-mono text-[13px] tabular-nums text-ink">
+          {value}%
+        </span>
+      )}
     </div>
   );
 }
