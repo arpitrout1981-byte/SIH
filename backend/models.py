@@ -111,3 +111,7 @@ class Vacancy(BaseModel):
     source: str
     updated_at: str
     requirements: list[SkillRequirement]
+
+
+class Recommendation(MatchExplanation):
+    pass

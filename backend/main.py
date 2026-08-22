@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .auth import get_current_user, hash_password, issue_token, verify_password
 from .database import add_evidence, create_user, find_user, get_profile, get_user_skill_signals, init_db, list_evidence, list_vacancies, revoke_session, update_profile
-from .models import Evidence, EvidenceCreate, LoginRequest, Match, MatchExplanation, MessageResponse, Profile, ProfileUpdate, SignupRequest, TokenResponse, Vacancy
+from .models import Evidence, EvidenceCreate, LoginRequest, Match, MatchExplanation, MessageResponse, Profile, ProfileUpdate, Recommendation, SignupRequest, TokenResponse, Vacancy
 from .services import explain_match
 
 app = FastAPI(title="Skillfolio API", description="Evidence-backed skill passport and explainable matching API.", version="2.0.0")
@@ -77,8 +77,8 @@ def vacancies(_: dict[str, str] = Depends(current_user)) -> list[Vacancy]:
     return [Vacancy.model_validate(item) for item in list_vacancies()]
 
 
-@app.get("/api/recommendations", response_model=list[MatchExplanation])
-def recommendations(user: dict[str, str] = Depends(current_user)) -> list[MatchExplanation]:
+@app.get("/api/recommendations", response_model=list[Recommendation])
+def recommendations(user: dict[str, str] = Depends(current_user)) -> list[Recommendation]:
     signals = get_user_skill_signals(user["id"])
     return [
         explain_match(Match.model_validate(item), signals)
