@@ -2,9 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ChevronRight, Download, Share2, Stamp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button, Card, Eyebrow, ProficiencyBar, StatusBadge } from "@/components/primitives";
-import { evidenceById, profile, skills, type SkillCategory } from "@/data/skillpass";
+import { profile, type SkillCategory } from "@/data/skillpass";
 import { cn } from "@/lib/utils";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, type EvidenceRecord, type UserSkill } from "@/lib/api";
 
 export const Route = createFileRoute("/passport")({
   head: () => ({
@@ -76,8 +76,7 @@ function PassportHero({ profileData }: { profileData: typeof profile }) {
   );
 }
 
-function SkillRow({ skillId }: { skillId: string }) {
-  const skill = skills.find((s) => s.id === skillId)!;
+function SkillRow({ skill, evidence }: { skill: UserSkill; evidence: EvidenceRecord[] }) {
   const [open, setOpen] = useState(false);
   return (
     <li className="doc-card doc-card-hover">
@@ -109,14 +108,15 @@ function SkillRow({ skillId }: { skillId: string }) {
         <span className="flex items-center gap-4">
           <ProficiencyBar level={skill.level} />
           <span className="text-[13px] leading-[18px] text-ink-soft">
-            Backed by {skill.evidenceIds.length} evidence {skill.evidenceIds.length === 1 ? "item" : "items"}
+            Backed by {skill.evidence_ids.length} evidence {skill.evidence_ids.length === 1 ? "item" : "items"}
           </span>
         </span>
       </button>
       {open && (
         <ul className="border-t border-border px-4 py-3">
-          {skill.evidenceIds.map((id) => {
-            const ev = evidenceById(id)!;
+          {skill.evidence_ids.map((id) => {
+            const ev = evidence.find((item) => item.id === id);
+            if (!ev) return null;
             return (
               <li key={id} className="flex flex-col gap-1 py-2 md:flex-row md:items-center md:justify-between">
                 <span>
@@ -139,14 +139,24 @@ function PassportPage() {
   const [tab, setTab] = useState<SkillCategory>("Technical");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [profileData, setProfileData] = useState(profile);
+  const [userSkills, setUserSkills] = useState<UserSkill[]>([]);
+  const [userEvidence, setUserEvidence] = useState<EvidenceRecord[]>([]);
 
   useEffect(() => {
-    void apiFetch<{ name: string; passport_id: string; strength: number }>("/api/profile")
-      .then((result) => setProfileData({ ...profile, name: result.name, passportId: result.passport_id, strength: result.strength }))
+    void Promise.all([
+      apiFetch<{ name: string; passport_id: string; strength: number }>("/api/profile"),
+      apiFetch<UserSkill[]>("/api/skills"),
+      apiFetch<EvidenceRecord[]>("/api/evidence"),
+    ])
+      .then(([result, skillsResult, evidenceResult]) => {
+        setProfileData({ ...profile, name: result.name, passportId: result.passport_id, strength: result.strength });
+        setUserSkills(skillsResult);
+        setUserEvidence(evidenceResult);
+      })
       .catch(() => undefined);
   }, []);
 
-  const rows = skills.filter((s) => s.category === tab && (!verifiedOnly || s.verified));
+  const rows = userSkills.filter((s) => s.category === tab && (!verifiedOnly || s.verified));
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-8">
@@ -193,14 +203,14 @@ function PassportPage() {
         </div>
 
         <ul className="flex flex-col gap-2">
-          {rows.map((s) => (
-            <SkillRow key={s.id} skillId={s.id} />
+          {rows.map((skill) => (
+            <SkillRow key={skill.id} skill={skill} evidence={userEvidence} />
           ))}
         </ul>
         {rows.length === 0 && (
           <Card>
             <p className="text-[15px] text-ink">
-              No verified skills in this category yet. Switch to Include self-reported to see entries awaiting verification.
+              No skills in this category yet. Add evidence in your vault to build your skill record.
             </p>
           </Card>
         )}

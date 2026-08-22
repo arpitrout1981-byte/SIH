@@ -18,6 +18,15 @@ export type EvidenceRecord = {
   detail: string;
 };
 
+export type UserSkill = {
+  id: string;
+  name: string;
+  category: "Technical" | "Soft Skills" | "Domain Knowledge";
+  level: number;
+  verified: boolean;
+  evidence_ids: string[];
+};
+
 export type Recommendation = {
   match: { id: string; title: string; org: string; kind: "Internship" | "Team"; domain: string; summary: string };
   score: number;
