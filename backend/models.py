@@ -15,6 +15,9 @@ class Profile(BaseModel):
     name: str
     passport_id: str
     strength: int = Field(ge=0, le=100)
+    verified_skills: int = Field(default=0, ge=0)
+    total_skills: int = Field(default=0, ge=0)
+    evidence_items: int = Field(default=0, ge=0)
 
 
 class SignupRequest(BaseModel):

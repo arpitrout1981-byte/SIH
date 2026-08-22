@@ -107,7 +107,12 @@ def get_profile(user_id: str) -> dict[str, Any]:
         ).fetchone()
     if row is None:
         raise RuntimeError("Profile is not initialized")
-    return dict(row)
+    result = dict(row)
+    user_skills = list_user_skills(user_id)
+    result["verified_skills"] = sum(1 for skill in user_skills if skill["verified"])
+    result["total_skills"] = len(user_skills)
+    result["evidence_items"] = len(list_evidence(user_id))
+    return result
 
 
 def update_profile(user_id: str, name: str) -> dict[str, Any]:
