@@ -6,8 +6,8 @@ from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 
 from .auth import get_current_user, hash_password, issue_token, verify_password
-from .database import add_evidence, create_user, find_user, get_profile, get_user_skill_signals, init_db, list_evidence, list_vacancies, revoke_session, update_profile
-from .models import Evidence, EvidenceCreate, LoginRequest, Match, MatchExplanation, MessageResponse, Profile, ProfileUpdate, Recommendation, SignupRequest, TokenResponse, Vacancy
+from .database import add_evidence, create_user, find_user, get_profile, get_user_skill_signals, init_db, list_evidence, list_user_skills, list_vacancies, revoke_session, update_profile
+from .models import Evidence, EvidenceCreate, LoginRequest, Match, MatchExplanation, MessageResponse, Profile, ProfileUpdate, Recommendation, SignupRequest, Skill, TokenResponse, Vacancy
 from .services import explain_match
 
 app = FastAPI(title="Skillfolio API", description="Evidence-backed skill passport and explainable matching API.", version="2.0.0")
@@ -65,6 +65,11 @@ def edit_profile(request: ProfileUpdate, user: dict[str, str] = Depends(current_
 @app.get("/api/evidence", response_model=list[Evidence])
 def evidence(user: dict[str, str] = Depends(current_user)) -> list[Evidence]:
     return [Evidence.model_validate(item) for item in list_evidence(user["id"])]
+
+
+@app.get("/api/skills", response_model=list[Skill])
+def user_skills(user: dict[str, str] = Depends(current_user)) -> list[Skill]:
+    return [Skill.model_validate(item) for item in list_user_skills(user["id"])]
 
 
 @app.post("/api/evidence", response_model=Evidence, status_code=status.HTTP_201_CREATED)

@@ -123,6 +123,30 @@ def list_evidence(user_id: str) -> list[dict[str, Any]]:
     return [json.loads(row["payload"]) for row in rows]
 
 
+def list_user_skills(user_id: str) -> list[dict[str, Any]]:
+    grouped: dict[str, dict[str, Any]] = {}
+    for item in list_evidence(user_id):
+        verified = item["status"] == "Verified"
+        for name in item.get("skills", []):
+            key = name.casefold()
+            skill = grouped.setdefault(
+                key,
+                {
+                    "id": f"user-skill-{key.replace(' ', '-')}",
+                    "name": name,
+                    "category": "Technical",
+                    "level": 3 if verified else 1,
+                    "verified": verified,
+                    "evidence_ids": [],
+                },
+            )
+            skill["level"] = max(skill["level"], 3 if verified else 1)
+            skill["verified"] = skill["verified"] or verified
+            if item["id"] not in skill["evidence_ids"]:
+                skill["evidence_ids"].append(item["id"])
+    return list(grouped.values())
+
+
 def get_user_skill_signals(user_id: str) -> list[tuple[str, int, bool]]:
     signals: dict[str, tuple[int, bool]] = {}
     for item in list_evidence(user_id):
