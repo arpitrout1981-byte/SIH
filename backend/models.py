@@ -17,6 +17,17 @@ class Profile(BaseModel):
     strength: int = Field(ge=0, le=100)
 
 
+class LoginRequest(BaseModel):
+    email: str
+    password: str = Field(min_length=1)
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    profile_name: str
+
+
 class Evidence(BaseModel):
     id: str
     title: str
