@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BadgeCheck, LockKeyhole, ShieldCheck } from "lucide-react";
 import { FormEvent, useState } from "react";
+import { login as apiLogin } from "@/lib/api";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -19,8 +20,11 @@ function LoginPage() {
       return;
     }
 
-    window.localStorage.setItem("skillpass-authenticated", "true");
-    void navigate({ to: "/" });
+    void apiLogin(email.trim(), password)
+      .then(() => navigate({ to: "/" }))
+      .catch((reason: unknown) => {
+        setError(reason instanceof Error ? reason.message : "Unable to sign in.");
+      });
   }
 
   return (
@@ -76,7 +80,7 @@ function LoginPage() {
         </form>
 
         <p className="mt-6 border-t border-border pt-4 text-center text-[12px] leading-[18px] text-ink-soft">
-          Demo mode: any non-empty email and password will open the passport.
+          Demo account: admin@example.com / admin123
         </p>
       </section>
     </main>

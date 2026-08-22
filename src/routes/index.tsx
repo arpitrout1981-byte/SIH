@@ -18,11 +18,12 @@ import {
 import { Card, Eyebrow, KindBadge, Ring, StatTile, StatusBadge } from "@/components/primitives";
 import { useChartColors } from "@/components/theme";
 import { evidence, matches, profile, radarData, skillGrowth } from "@/data/skillpass";
+import { apiFetch, hasSession } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/")({
   beforeLoad: () => {
-    if (typeof window !== "undefined" && window.localStorage.getItem("skillpass-authenticated") !== "true") {
+    if (typeof window !== "undefined" && !hasSession()) {
       throw redirect({ to: "/login" });
     }
   },
@@ -47,16 +48,27 @@ export const Route = createFileRoute("/")({
 function Dashboard() {
   const navigate = useNavigate();
   const [authenticated, setAuthenticated] = useState(false);
+  const [profileData, setProfileData] = useState(profile);
   const c = useChartColors();
   const recent = evidence.slice(0, 4);
   const top = [...matches].sort((a, b) => b.score - a.score).slice(0, 3);
 
   useEffect(() => {
-    if (window.localStorage.getItem("skillpass-authenticated") !== "true") {
+    if (!hasSession()) {
       void navigate({ to: "/login", replace: true });
       return;
     }
-    setAuthenticated(true);
+    void apiFetch<{ name: string; passport_id: string; strength: number }>("/api/profile")
+      .then((result) => {
+        setProfileData({
+          name: result.name,
+          passportId: result.passport_id,
+          strength: result.strength,
+          mrz: profile.mrz,
+        });
+        setAuthenticated(true);
+      })
+      .catch(() => navigate({ to: "/login", replace: true }));
   }, [navigate]);
 
   if (!authenticated) {
@@ -69,14 +81,14 @@ function Dashboard() {
         <div>
           <Eyebrow>Passport holder</Eyebrow>
           <h1 className="mt-1 font-slab text-2xl leading-[30px] text-ink md:text-[32px] md:leading-[38px]">
-            Welcome back, {profile.name}
+            Welcome back, {profileData.name}
           </h1>
           <p className="mt-2 font-mono text-[13px] tabular-nums text-ink-soft">
             {profile.passportId} · last verification 2026-06-02
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Ring value={profile.strength} size={72} label="Profile strength" />
+          <Ring value={profileData.strength} size={72} label="Profile strength" />
           <div>
             <Eyebrow>Profile strength</Eyebrow>
             <p className="text-[15px] text-ink">Two pending verifications from full strength</p>
