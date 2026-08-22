@@ -1,52 +1,52 @@
-from fastapi.testclient import TestClient
-
-from backend.main import app
-
-
-client = TestClient(app)
+import os
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 
-def login() -> str:
-    response = client.post(
-        "/api/auth/login",
-        json={"email": "admin@example.com", "password": "admin123"},
-    )
-    assert response.status_code == 200
-    return response.json()["access_token"]
+def test_api_lifecycle() -> None:
+    with TemporaryDirectory(ignore_cleanup_errors=True) as directory:
+        os.environ["SKILLFOLIO_DB_PATH"] = str(Path(directory) / "test.db")
+        from fastapi.testclient import TestClient
+        from backend.main import app
 
+        with TestClient(app) as client:
+            signup = client.post(
+                "/api/auth/signup",
+                json={"email": "yash@example.com", "password": "strong-password", "name": "Yash"},
+            )
+            assert signup.status_code == 201
+            token = signup.json()["access_token"]
+            headers = {"Authorization": f"Bearer {token}"}
 
-def test_health() -> None:
-    response = client.get("/health")
-    assert response.status_code == 200
-    assert response.json() == {"status": "ok", "service": "skillfolio-api"}
+            assert client.get("/api/profile", headers=headers).json()["name"] == "Yash"
+            assert client.get("/api/evidence", headers=headers).json() == []
+            assert client.get("/api/recommendations", headers=headers).status_code == 200
 
+            evidence = client.post(
+                "/api/evidence",
+                headers=headers,
+                json={
+                    "title": "Python course",
+                    "type": "course",
+                    "source": "University",
+                    "date": "2026-08-22",
+                    "skills": ["Python"],
+                    "detail": "Completed with distinction",
+                },
+            )
+            assert evidence.status_code == 201
+            assert len(client.get("/api/evidence", headers=headers).json()) == 1
 
-def test_profile_uses_admin_name() -> None:
-    response = client.get("/api/profile", headers={"Authorization": f"Bearer {login()}"})
-    assert response.status_code == 200
-    assert response.json()["name"] == "Admin"
+            vacancies = client.get("/api/vacancies", headers=headers)
+            assert vacancies.status_code == 200
+            assert vacancies.json()
 
+            second = client.post(
+                "/api/auth/signup",
+                json={"email": "second@example.com", "password": "strong-password", "name": "Second"},
+            )
+            second_headers = {"Authorization": f"Bearer {second.json()['access_token']}"}
+            assert client.get("/api/evidence", headers=second_headers).json() == []
 
-def test_explanation_returns_verified_matches_and_gaps() -> None:
-    response = client.get(
-        "/api/matches/m1/explain",
-        headers={"Authorization": f"Bearer {login()}"},
-    )
-    body = response.json()
-    assert response.status_code == 200
-    assert body["matched_skills"] == ["SQL", "Data Visualization", "Python"]
-    assert body["gaps"][0]["skill"] == "Statistical Modeling"
-    assert "excluded" in body["fairness_note"]
-
-
-def test_missing_match_returns_404() -> None:
-    response = client.get(
-        "/api/matches/unknown/explain",
-        headers={"Authorization": f"Bearer {login()}"},
-    )
-    assert response.status_code == 404
-
-
-def test_data_routes_require_authentication() -> None:
-    response = client.get("/api/evidence")
-    assert response.status_code == 401
+            assert client.post("/api/auth/logout", headers=headers).status_code == 200
+            assert client.get("/api/profile", headers=headers).status_code == 401

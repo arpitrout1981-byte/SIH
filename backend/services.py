@@ -1,22 +1,25 @@
-from .data import fairness_note, skills
+from .data import fairness_note
 from .models import Gap, Match, MatchExplanation
 
 
-def explain_match(match: Match) -> MatchExplanation:
-    skill_map = {skill.name.casefold(): skill for skill in skills}
+def explain_match(match: Match, available_skills: list[tuple[str, int, bool]] | None = None) -> MatchExplanation:
+    skill_map = {
+        name.casefold(): {"level": level, "verified": verified}
+        for name, level, verified in (available_skills or [])
+    }
     matched_skills: list[str] = []
     gaps: list[Gap] = []
 
     for requirement in match.requirements:
         skill = skill_map.get(requirement.name.casefold())
-        if skill and skill.verified and skill.level >= requirement.required_level:
+        if skill and skill["verified"] and skill["level"] >= requirement.required_level:
             matched_skills.append(requirement.name)
             continue
 
-        if skill and not skill.verified:
+        if skill and not skill["verified"]:
             suggestion = "Attach verified issuer evidence for this skill."
         elif skill:
-            suggestion = f"Raise demonstrated proficiency from level {skill.level} to {requirement.required_level}."
+            suggestion = f"Raise demonstrated proficiency from level {skill['level']} to {requirement.required_level}."
         else:
             suggestion = "Add a project, course, or credential demonstrating this skill."
         gaps.append(Gap(skill=requirement.name, suggestion=suggestion))

@@ -17,6 +17,16 @@ class Profile(BaseModel):
     strength: int = Field(ge=0, le=100)
 
 
+class SignupRequest(BaseModel):
+    email: str
+    password: str = Field(min_length=8)
+    name: str = Field(min_length=1, max_length=80)
+
+
+class ProfileUpdate(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
+
+
 class LoginRequest(BaseModel):
     email: str
     password: str = Field(min_length=1)
@@ -28,6 +38,10 @@ class TokenResponse(BaseModel):
     profile_name: str
 
 
+class MessageResponse(BaseModel):
+    message: str
+
+
 class Evidence(BaseModel):
     id: str
     title: str
@@ -37,6 +51,15 @@ class Evidence(BaseModel):
     status: Status
     skills: list[str]
     detail: str
+
+
+class EvidenceCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    type: EvidenceType
+    source: str = Field(min_length=1, max_length=200)
+    date: str
+    skills: list[str] = Field(default_factory=list)
+    detail: str = Field(default="", max_length=2000)
 
 
 class Skill(BaseModel):
@@ -59,7 +82,7 @@ class Match(BaseModel):
     org: str
     kind: MatchKind
     domain: str
-    score: int = Field(ge=0, le=100)
+    score: int = Field(default=0, ge=0, le=100)
     summary: str
     requirements: list[SkillRequirement]
 
@@ -75,3 +98,16 @@ class MatchExplanation(BaseModel):
     matched_skills: list[str]
     gaps: list[Gap]
     fairness_note: str
+
+
+class Vacancy(BaseModel):
+    id: str
+    title: str
+    org: str
+    kind: MatchKind
+    domain: str
+    summary: str
+    url: str | None = None
+    source: str
+    updated_at: str
+    requirements: list[SkillRequirement]
