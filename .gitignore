@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 __pycache__/
 *.py[cod]
+*.db
 dist
 dist-ssr
 .output
