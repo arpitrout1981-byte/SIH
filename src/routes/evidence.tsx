@@ -4,15 +4,14 @@ import {
   BookOpen,
   FileBadge,
   FolderGit2,
-  Github,
-  Link2,
   Plus,
   Upload,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Button, Card, Eyebrow, StatusBadge } from "@/components/primitives";
-import { evidence, skillsForEvidence, type Evidence, type EvidenceType } from "@/data/skillpass";
+import { createEvidence, apiFetch, type EvidenceRecord } from "@/lib/api";
+import type { EvidenceType } from "@/data/skillpass";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/evidence")({
@@ -41,13 +40,26 @@ const typeLabel: Record<EvidenceType, string> = {
   credential: "Micro-credential",
 };
 
-function AddEvidenceModal({ onClose }: { onClose: () => void }) {
-  const options = [
-    { icon: Upload, title: "Upload Certificate", note: "PDF or image; the issuer is matched against the recognised-issuer list." },
-    { icon: Link2, title: "Connect Coursera", note: "Imports completed courses and certificate IDs through the issuer API." },
-    { icon: Github, title: "Link GitHub Repo", note: "Reads commit signatures and language mix as project evidence." },
-    { icon: Award, title: "Add Competition Result", note: "Records placement plus the organiser's published result sheet." },
-  ];
+function AddEvidenceModal({ onClose, onSaved }: { onClose: () => void; onSaved: (item: EvidenceRecord) => void }) {
+  const [title, setTitle] = useState("");
+  const [source, setSource] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [type, setType] = useState<EvidenceType>("course");
+  const [skills, setSkills] = useState("");
+  const [detail, setDetail] = useState("");
+  const [error, setError] = useState("");
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    try {
+      const item = await createEvidence({ title, source, date, type, skills: skills.split(",").map((skill) => skill.trim()).filter(Boolean), detail });
+      onSaved(item);
+      onClose();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Unable to save evidence.");
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#14201B]/50 p-4 md:items-center" role="dialog" aria-modal="true" aria-label="Add evidence">
       <div className="w-full max-w-lg rounded-md border border-border bg-surface shadow-float">
@@ -57,37 +69,32 @@ function AddEvidenceModal({ onClose }: { onClose: () => void }) {
             <X size={18} strokeWidth={1.5} />
           </button>
         </div>
-        <ul className="flex flex-col gap-2 p-4">
-          {options.map(({ icon: Icon, title, note }) => (
-            <li key={title}>
-              <button
-                type="button"
-                onClick={onClose}
-                className="doc-card doc-card-hover flex w-full items-start gap-3 p-3 text-left"
-              >
-                <Icon size={20} strokeWidth={1.5} className="mt-0.5 text-bottle dark:text-brass" />
-                <span>
-                  <span className="block text-[15px] text-ink">{title}</span>
-                  <span className="block text-[13px] leading-[18px] text-ink-soft">{note}</span>
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-        <div className="flex justify-end border-t border-border px-4 py-3">
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
-        </div>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4">
+          <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Evidence title" required className="h-10 rounded-sm border border-input bg-background px-3 text-[14px] text-ink" />
+          <input value={source} onChange={(event) => setSource(event.target.value)} placeholder="Issuer or source" required className="h-10 rounded-sm border border-input bg-background px-3 text-[14px] text-ink" />
+          <div className="grid grid-cols-2 gap-3">
+            <select value={type} onChange={(event) => setType(event.target.value as EvidenceType)} className="h-10 rounded-sm border border-input bg-background px-3 text-[14px] text-ink">
+              {Object.keys(typeLabel).map((value) => <option key={value} value={value}>{typeLabel[value as EvidenceType]}</option>)}
+            </select>
+            <input type="date" value={date} onChange={(event) => setDate(event.target.value)} required className="h-10 rounded-sm border border-input bg-background px-3 text-[14px] text-ink" />
+          </div>
+          <input value={skills} onChange={(event) => setSkills(event.target.value)} placeholder="Skills, separated by commas" className="h-10 rounded-sm border border-input bg-background px-3 text-[14px] text-ink" />
+          <textarea value={detail} onChange={(event) => setDetail(event.target.value)} placeholder="Details or verification notes" className="min-h-20 rounded-sm border border-input bg-background p-3 text-[14px] text-ink" />
+          {error && <p className="text-[13px] text-gap">{error}</p>}
+          <div className="flex justify-end gap-2 border-t border-border pt-3">
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="submit"><Upload size={18} strokeWidth={1.5} /> Save evidence</Button>
+          </div>
+        </form>
       </div>
     </div>
   );
 }
 
-function EvidenceCard({ item }: { item: Evidence }) {
+function EvidenceCard({ item }: { item: EvidenceRecord }) {
   const [open, setOpen] = useState(false);
   const Icon = typeIcon[item.type];
-  const fed = skillsForEvidence(item.id);
+  const fed = item.skills;
   return (
     <Card as="li" hover className="flex flex-col gap-3">
       <div className="flex items-start justify-between gap-3">
@@ -113,12 +120,12 @@ function EvidenceCard({ item }: { item: Evidence }) {
         <div className="border-t border-border pt-3">
           <p className="text-[13px] leading-[18px] text-ink-soft">{item.detail}</p>
           <ul className="mt-3 flex flex-wrap gap-2">
-            {fed.map((s) => (
+            {fed.map((skill) => (
               <li
                 key={s.id}
                 className="rounded-sm border border-border px-2 py-1 text-[13px] leading-[18px] text-ink"
               >
-                {s.name} · level {s.level}/5
+                {skill}
               </li>
             ))}
           </ul>
@@ -131,6 +138,12 @@ function EvidenceCard({ item }: { item: Evidence }) {
 function EvidencePage() {
   const [modal, setModal] = useState(false);
   const [type, setType] = useState<EvidenceType | "all">("all");
+  const [evidence, setEvidence] = useState<EvidenceRecord[]>([]);
+
+  useEffect(() => {
+    void apiFetch<EvidenceRecord[]>("/api/evidence").then(setEvidence);
+  }, []);
+
   const list = evidence.filter((e) => type === "all" || e.type === type);
 
   return (
@@ -142,8 +155,7 @@ function EvidencePage() {
             Evidence Vault
           </h1>
           <p className="mt-2 max-w-2xl text-[15px] text-ink">
-            Ten source records back the passport. Each one lists the skills it feeds, so every claim can be traced in both
-            directions.
+            Add courses, projects, credentials, and competition results. New records remain pending until verified.
           </p>
         </div>
         <Button onClick={() => setModal(true)}>
@@ -173,7 +185,7 @@ function EvidencePage() {
         ))}
       </ul>
 
-      {modal && <AddEvidenceModal onClose={() => setModal(false)} />}
+      {modal && <AddEvidenceModal onClose={() => setModal(false)} onSaved={(item) => setEvidence((items) => [item, ...items])} />}
     </div>
   );
 }

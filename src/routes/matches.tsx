@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ChevronDown, TriangleAlert } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -13,7 +13,8 @@ import {
 } from "recharts";
 import { Button, Card, Eyebrow, FairnessNote, KindBadge, Ring } from "@/components/primitives";
 import { useChartColors } from "@/components/theme";
-import { FAIRNESS_NOTE, matches, type Match } from "@/data/skillpass";
+import { FAIRNESS_NOTE } from "@/data/skillpass";
+import { apiFetch, type Recommendation } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/matches")({
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/matches")({
   component: MatchesPage,
 });
 
-function CompareChart({ data }: { data: Match["compare"] }) {
+function CompareChart({ data }: { data: { skill: string; you: number; required: number }[] }) {
   const c = useChartColors();
   return (
     <div className="h-[220px] w-full">
@@ -56,7 +57,8 @@ function CompareChart({ data }: { data: Match["compare"] }) {
   );
 }
 
-export function MatchCard({ match }: { match: Match }) {
+export function MatchCard({ recommendation }: { recommendation: Recommendation }) {
+  const match = recommendation.match;
   const [open, setOpen] = useState(false);
   return (
     <Card as="li" hover className="flex flex-col gap-4">
@@ -91,15 +93,15 @@ export function MatchCard({ match }: { match: Match }) {
           <div className="mt-3 rounded-md border border-border bg-surface p-4 shadow-float">
             <Eyebrow>Evidence behind this score</Eyebrow>
             <ul className="mt-2 flex flex-col gap-2">
-              {match.why.map((w) => (
-                <li key={w.skill} className="text-[15px] text-ink">
-                  <span className="font-semibold">{w.skill}</span> → {w.evidence}
+              {recommendation.matched_skills.map((skill) => (
+                <li key={skill} className="text-[15px] text-ink">
+                  <span className="font-semibold">{skill}</span> is supported by your evidence.
                 </li>
               ))}
             </ul>
             <div className="mt-4">
               <Eyebrow>Your skills vs required</Eyebrow>
-              <CompareChart data={match.compare} />
+              <p className="text-[13px] text-ink-soft">Add more verified evidence to improve your recommendation score.</p>
             </div>
           </div>
         )}
@@ -108,7 +110,7 @@ export function MatchCard({ match }: { match: Match }) {
       <div className="border-t border-border pt-3">
         <Eyebrow>Skill gaps</Eyebrow>
         <ul className="mt-2 flex flex-col gap-2">
-          {match.gaps.map((g) => (
+          {recommendation.gaps.map((g) => (
             <li key={g.skill} className="flex flex-wrap items-start gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-sm border border-gap px-2 py-1 text-[13px] font-semibold leading-[18px] text-gap">
                 <TriangleAlert size={18} strokeWidth={1.5} />
@@ -120,7 +122,7 @@ export function MatchCard({ match }: { match: Match }) {
         </ul>
       </div>
 
-      <FairnessNote text={FAIRNESS_NOTE} />
+      <FairnessNote text={recommendation.fairness_note || FAIRNESS_NOTE} />
     </Card>
   );
 }
@@ -130,15 +132,20 @@ function MatchesPage() {
   const [domain, setDomain] = useState("All domains");
   const [minScore, setMinScore] = useState(60);
   const [sort, setSort] = useState<"score" | "title">("score");
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
 
-  const domains = useMemo(() => ["All domains", ...new Set(matches.map((m) => m.domain))], []);
+  useEffect(() => {
+    void apiFetch<Recommendation[]>("/api/recommendations").then(setRecommendations);
+  }, []);
+
+  const domains = useMemo(() => ["All domains", ...new Set(recommendations.map((item) => item.match.domain))], [recommendations]);
 
   const list = useMemo(
     () =>
-      matches
-        .filter((m) => (kind === "All" || m.kind === kind) && (domain === "All domains" || m.domain === domain) && m.score >= minScore)
-        .sort((a, b) => (sort === "score" ? b.score - a.score : a.title.localeCompare(b.title))),
-    [kind, domain, minScore, sort],
+      recommendations
+        .filter((item) => (kind === "All" || item.match.kind === kind) && (domain === "All domains" || item.match.domain === domain) && item.score >= minScore)
+        .sort((a, b) => (sort === "score" ? b.score - a.score : a.match.title.localeCompare(b.match.title))),
+    [kind, domain, minScore, recommendations, sort],
   );
 
   const selectClass =
@@ -211,8 +218,8 @@ function MatchesPage() {
         </Card>
       ) : (
         <ul className="flex flex-col gap-4">
-          {list.map((m) => (
-            <MatchCard key={m.id} match={m} />
+          {list.map((item) => (
+            <MatchCard key={item.match.id} recommendation={item} />
           ))}
         </ul>
       )}

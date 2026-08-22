@@ -17,8 +17,8 @@ import {
 } from "recharts";
 import { Card, Eyebrow, KindBadge, Ring, StatTile, StatusBadge } from "@/components/primitives";
 import { useChartColors } from "@/components/theme";
-import { evidence, matches, profile, radarData, skillGrowth } from "@/data/skillpass";
-import { apiFetch, hasSession } from "@/lib/api";
+import { profile, radarData, skillGrowth } from "@/data/skillpass";
+import { apiFetch, hasSession, type EvidenceRecord, type Recommendation } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/")({
@@ -49,23 +49,31 @@ function Dashboard() {
   const navigate = useNavigate();
   const [authenticated, setAuthenticated] = useState(false);
   const [profileData, setProfileData] = useState(profile);
+  const [evidenceData, setEvidenceData] = useState<EvidenceRecord[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const c = useChartColors();
-  const recent = evidence.slice(0, 4);
-  const top = [...matches].sort((a, b) => b.score - a.score).slice(0, 3);
+  const recent = evidenceData.slice(0, 4);
+  const top = recommendations.slice(0, 3);
 
   useEffect(() => {
     if (!hasSession()) {
       void navigate({ to: "/login", replace: true });
       return;
     }
-    void apiFetch<{ name: string; passport_id: string; strength: number }>("/api/profile")
-      .then((result) => {
+    void Promise.all([
+      apiFetch<{ name: string; passport_id: string; strength: number }>("/api/profile"),
+      apiFetch<EvidenceRecord[]>("/api/evidence"),
+      apiFetch<Recommendation[]>("/api/recommendations"),
+    ])
+      .then(([result, userEvidence, userRecommendations]) => {
         setProfileData({
           name: result.name,
           passportId: result.passport_id,
           strength: result.strength,
           mrz: profile.mrz,
         });
+        setEvidenceData(userEvidence);
+        setRecommendations(userRecommendations);
         setAuthenticated(true);
       })
       .catch(() => navigate({ to: "/login", replace: true }));
@@ -97,10 +105,10 @@ function Dashboard() {
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatTile icon={BadgeCheck} label="Verified credentials" value="8" note="Issuer-confirmed records" />
-        <StatTile icon={Target} label="Active matches" value="6" note="4 internships, 2 team openings" />
-        <StatTile icon={Layers} label="Skills tracked" value="12" note="10 verified, 2 self-reported" />
-        <StatTile icon={Clock} label="Pending verifications" value="2" note="AWS Essentials, society role letter" />
+        <StatTile icon={BadgeCheck} label="Verified credentials" value={String(evidenceData.filter((item) => item.status === "Verified").length)} note="Issuer-confirmed records" />
+        <StatTile icon={Target} label="Available matches" value={String(recommendations.length)} note="Based on current evidence" />
+        <StatTile icon={Layers} label="Skills tracked" value={String(new Set(evidenceData.flatMap((item) => item.skills)).size)} note="Skills found in your vault" />
+        <StatTile icon={Clock} label="Pending verifications" value={String(evidenceData.filter((item) => item.status !== "Verified").length)} note="Awaiting review" />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-5">
@@ -109,7 +117,7 @@ function Dashboard() {
           <h2 className="mt-1 font-slab text-[20px] leading-[26px] text-ink">Verified proficiency, last 6 months</h2>
           <div className="mt-4 h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={skillGrowth} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
+              <LineChart data={evidenceData.length ? skillGrowth : []} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
                 <CartesianGrid stroke={c.grid} strokeOpacity={0.6} vertical={false} />
                 <XAxis dataKey="month" tick={{ fill: c.text, fontSize: 12 }} stroke={c.grid} />
                 <YAxis tick={{ fill: c.text, fontSize: 12 }} stroke={c.grid} />
@@ -150,7 +158,7 @@ function Dashboard() {
           <h2 className="mt-1 font-slab text-[20px] leading-[26px] text-ink">Top skill categories</h2>
           <div className="mt-4 h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={radarData} outerRadius="72%">
+              <RadarChart data={evidenceData.length ? radarData : []} outerRadius="72%">
                 <PolarGrid stroke={c.grid} />
                 <PolarAngleAxis dataKey="category" tick={{ fill: c.text, fontSize: 12 }} />
                 <PolarRadiusAxis domain={[0, 100]} tick={{ fill: c.text, fontSize: 11 }} stroke={c.grid} />
@@ -176,21 +184,21 @@ function Dashboard() {
         <div className="flex flex-col gap-3 lg:col-span-3">
           <h2 className="font-slab text-[20px] leading-[26px] text-ink">Top matches this week</h2>
           <ul className="flex flex-col gap-3">
-            {top.map((m) => (
-              <li key={m.id}>
+            {top.map((item) => (
+              <li key={item.match.id}>
                 <Link to="/matches" className="doc-card doc-card-hover flex items-center justify-between gap-4 p-4">
                   <span className="min-w-0">
                     <span className="flex flex-wrap items-center gap-2">
-                      <KindBadge kind={m.kind} />
-                      <Eyebrow>{m.domain}</Eyebrow>
+                      <KindBadge kind={item.match.kind} />
+                      <Eyebrow>{item.match.domain}</Eyebrow>
                     </span>
-                    <span className="mt-1.5 block font-slab text-[15px] leading-[22px] text-ink">{m.title}</span>
-                    <span className="block text-[13px] leading-[18px] text-ink-soft">{m.org}</span>
+                    <span className="mt-1.5 block font-slab text-[15px] leading-[22px] text-ink">{item.match.title}</span>
+                    <span className="block text-[13px] leading-[18px] text-ink-soft">{item.match.org}</span>
                     <span className="mt-1 block text-[13px] leading-[18px] text-gap">
-                      Gap: {m.gaps.map((g) => g.skill).join(", ")}
+                      Gap: {item.gaps.map((g) => g.skill).join(", ") || "None"}
                     </span>
                   </span>
-                  <Ring value={m.score} size={56} label="Match score" />
+                  <Ring value={item.score} size={56} label="Match score" />
                 </Link>
               </li>
             ))}

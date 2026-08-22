@@ -1,6 +1,7 @@
-import { Link } from "@tanstack/react-router";
-import { BadgeCheck, FolderLock, IdCard, LayoutDashboard, ShieldCheck, Target } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { BadgeCheck, FolderLock, IdCard, LayoutDashboard, LogOut, ShieldCheck, Target } from "lucide-react";
 import type { ReactNode } from "react";
+import { logout } from "@/lib/api";
 import { profile } from "@/data/skillpass";
 import { ThemeToggle } from "@/components/theme";
 import { Ring } from "@/components/primitives";
@@ -24,6 +25,13 @@ function BiasBadge() {
 }
 
 function IdentityChip() {
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    void navigate({ to: "/login", replace: true });
+  }
+
   return (
     <div className="flex items-center gap-3 border-t border-border px-4 py-4">
       <span className="flex h-9 w-9 items-center justify-center rounded-sm border border-brass font-slab text-[15px] text-ink">
@@ -35,6 +43,9 @@ function IdentityChip() {
       </div>
       <Ring value={profile.strength} size={36} label="Profile strength" />
       <ThemeToggle />
+      <button type="button" onClick={handleLogout} aria-label="Sign out" title="Sign out" className="text-ink-soft hover:text-ink">
+        <LogOut size={18} strokeWidth={1.5} />
+      </button>
     </div>
   );
 }
