@@ -19,8 +19,13 @@ export const Route = createFileRoute("/passport")({
 });
 
 const categories: SkillCategory[] = ["Technical", "Soft Skills", "Domain Knowledge"];
+type PassportProfile = typeof profile & {
+  verifiedSkills: number;
+  totalSkills: number;
+  evidenceItems: number;
+};
 
-function PassportHero({ profileData }: { profileData: typeof profile }) {
+function PassportHero({ profileData }: { profileData: PassportProfile }) {
   return (
     <section className="unfold relative overflow-hidden border-2 border-brass bg-surface">
       <div className="guilloche pointer-events-none absolute inset-0 opacity-40" aria-hidden="true" />
@@ -45,8 +50,8 @@ function PassportHero({ profileData }: { profileData: typeof profile }) {
           {[
             ["Holder", profileData.name],
             ["Issuing authority", "Skillfolio Registry"],
-            ["Verified skills", "10 of 12"],
-            ["Evidence items", "10"],
+            ["Verified skills", `${profileData.verifiedSkills} of ${profileData.totalSkills}`],
+            ["Evidence items", String(profileData.evidenceItems)],
           ].map(([k, v]) => (
             <div key={k}>
               <dt className="eyebrow text-ink-soft">{k}</dt>
@@ -138,18 +143,31 @@ function SkillRow({ skill, evidence }: { skill: UserSkill; evidence: EvidenceRec
 function PassportPage() {
   const [tab, setTab] = useState<SkillCategory>("Technical");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
-  const [profileData, setProfileData] = useState(profile);
+  const [profileData, setProfileData] = useState<PassportProfile>({
+    ...profile,
+    verifiedSkills: 0,
+    totalSkills: 0,
+    evidenceItems: 0,
+  });
   const [userSkills, setUserSkills] = useState<UserSkill[]>([]);
   const [userEvidence, setUserEvidence] = useState<EvidenceRecord[]>([]);
 
   useEffect(() => {
     void Promise.all([
-      apiFetch<{ name: string; passport_id: string; strength: number }>("/api/profile"),
+      apiFetch<{ name: string; passport_id: string; strength: number; verified_skills: number; total_skills: number; evidence_items: number }>("/api/profile"),
       apiFetch<UserSkill[]>("/api/skills"),
       apiFetch<EvidenceRecord[]>("/api/evidence"),
     ])
       .then(([result, skillsResult, evidenceResult]) => {
-        setProfileData({ ...profile, name: result.name, passportId: result.passport_id, strength: result.strength });
+        setProfileData({
+          ...profile,
+          name: result.name,
+          passportId: result.passport_id,
+          strength: result.strength,
+          verifiedSkills: result.verified_skills,
+          totalSkills: result.total_skills,
+          evidenceItems: result.evidence_items,
+        });
         setUserSkills(skillsResult);
         setUserEvidence(evidenceResult);
       })
