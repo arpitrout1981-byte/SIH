@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ChevronRight, Download, Share2, Stamp } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Card, Eyebrow, ProficiencyBar, StatusBadge } from "@/components/primitives";
 import { evidenceById, profile, skills, type SkillCategory } from "@/data/skillpass";
 import { cn } from "@/lib/utils";
+import { apiFetch } from "@/lib/api";
 
 export const Route = createFileRoute("/passport")({
   head: () => ({
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/passport")({
 
 const categories: SkillCategory[] = ["Technical", "Soft Skills", "Domain Knowledge"];
 
-function PassportHero() {
+function PassportHero({ profileData }: { profileData: typeof profile }) {
   return (
     <section className="unfold relative overflow-hidden border-2 border-brass bg-surface">
       <div className="guilloche pointer-events-none absolute inset-0 opacity-40" aria-hidden="true" />
@@ -28,10 +29,10 @@ function PassportHero() {
           <div>
             <Eyebrow>Republic of verified skills</Eyebrow>
             <h1 className="mt-2 font-slab text-2xl leading-[30px] text-ink md:text-[32px] md:leading-[38px]">
-              Skill Passport — {profile.name}
+              Skill Passport — {profileData.name}
             </h1>
             <p className="mt-2 font-mono text-[14px] tracking-[0.02em] tabular-nums text-ink">
-              ID {profile.passportId} · Issued 2026-06-14 · Valid through 2028-06-14
+              ID {profileData.passportId} · Issued 2026-06-14 · Valid through 2028-06-14
             </p>
           </div>
           <div className="flex shrink-0 -rotate-12 flex-col items-center border-2 border-brass px-3 py-2 text-brass">
@@ -42,7 +43,7 @@ function PassportHero() {
 
         <dl className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {[
-            ["Holder", profile.name],
+            ["Holder", profileData.name],
             ["Issuing authority", "Skillfolio Registry"],
             ["Verified skills", "10 of 12"],
             ["Evidence items", "10"],
@@ -137,12 +138,19 @@ function SkillRow({ skillId }: { skillId: string }) {
 function PassportPage() {
   const [tab, setTab] = useState<SkillCategory>("Technical");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [profileData, setProfileData] = useState(profile);
+
+  useEffect(() => {
+    void apiFetch<{ name: string; passport_id: string; strength: number }>("/api/profile")
+      .then((result) => setProfileData({ ...profile, name: result.name, passportId: result.passport_id, strength: result.strength }))
+      .catch(() => undefined);
+  }, []);
 
   const rows = skills.filter((s) => s.category === tab && (!verifiedOnly || s.verified));
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-8">
-      <PassportHero />
+      <PassportHero profileData={profileData} />
 
       <section className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-3">

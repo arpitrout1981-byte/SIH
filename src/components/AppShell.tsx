@@ -3,8 +3,10 @@ import { BadgeCheck, FolderLock, IdCard, LayoutDashboard, LogOut, ShieldCheck, T
 import type { ReactNode } from "react";
 import { logout } from "@/lib/api";
 import { profile } from "@/data/skillpass";
+import { apiFetch } from "@/lib/api";
 import { ThemeToggle } from "@/components/theme";
 import { Ring } from "@/components/primitives";
+import { useEffect, useState } from "react";
 
 const tabs = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -26,6 +28,13 @@ function BiasBadge() {
 
 function IdentityChip() {
   const navigate = useNavigate();
+  const [profileData, setProfileData] = useState(profile);
+
+  useEffect(() => {
+    void apiFetch<{ name: string; passport_id: string; strength: number }>("/api/profile")
+      .then((result) => setProfileData({ ...profile, name: result.name, passportId: result.passport_id, strength: result.strength }))
+      .catch(() => undefined);
+  }, []);
 
   function handleLogout() {
     logout();
@@ -38,10 +47,10 @@ function IdentityChip() {
         K
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[13px] font-semibold leading-[18px] text-ink">{profile.name}</p>
-        <p className="truncate font-mono text-[13px] leading-[18px] text-ink-soft">{profile.passportId}</p>
+        <p className="truncate text-[13px] font-semibold leading-[18px] text-ink">{profileData.name}</p>
+        <p className="truncate font-mono text-[13px] leading-[18px] text-ink-soft">{profileData.passportId}</p>
       </div>
-      <Ring value={profile.strength} size={36} label="Profile strength" />
+      <Ring value={profileData.strength} size={36} label="Profile strength" />
       <ThemeToggle />
       <button type="button" onClick={handleLogout} aria-label="Sign out" title="Sign out" className="text-ink-soft hover:text-ink">
         <LogOut size={18} strokeWidth={1.5} />
