@@ -45,7 +45,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className="sticky top-0 hidden h-screen w-[264px] shrink-0 flex-col border-r border-border bg-surface md:flex">
         <div className="flex items-center gap-2 px-4 py-6">
           <BadgeCheck size={24} strokeWidth={1.5} className="text-brass" />
-          <span className="font-slab text-[20px] leading-[26px] text-ink">SkillPass</span>
+          <span className="font-slab text-[20px] leading-[26px] text-ink">Skillfolio</span>
         </div>
         <nav className="flex flex-1 flex-col gap-1 px-2">
           {tabs.map(({ to, label, icon: Icon }) => (
@@ -69,7 +69,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-background px-4 py-3 md:px-8">
           <div className="flex items-center gap-2 md:hidden">
             <BadgeCheck size={20} strokeWidth={1.5} className="text-brass" />
-            <span className="font-slab text-[15px] text-ink">SkillPass</span>
+            <span className="font-slab text-[15px] text-ink">Skillfolio</span>
           </div>
           <p className="eyebrow hidden text-ink-soft md:block">Verified skill passport · SOAIDEATHON-S30</p>
           <BiasBadge />

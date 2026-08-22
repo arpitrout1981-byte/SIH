@@ -8,9 +8,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/passport")({
   head: () => ({
     meta: [
-      { title: "Skill Passport — SkillPass" },
+      { title: "Skill Passport — Skillfolio" },
       { name: "description", content: "A portable, evidence-backed skill passport: verified technical, soft, and domain skills with traceable sources." },
-      { property: "og:title", content: "Skill Passport — SkillPass" },
+      { property: "og:title", content: "Skill Passport — Skillfolio" },
       { property: "og:description", content: "Verified skills, proficiency levels, and the exact evidence behind each entry." },
     ],
   }),
@@ -43,7 +43,7 @@ function PassportHero() {
         <dl className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {[
             ["Holder", profile.name],
-            ["Issuing authority", "SkillPass Registry"],
+            ["Issuing authority", "Skillfolio Registry"],
             ["Verified skills", "10 of 12"],
             ["Evidence items", "10"],
           ].map(([k, v]) => (

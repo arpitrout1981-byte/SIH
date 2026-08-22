@@ -5,17 +5,17 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * SkillPass design system — passports & official documents.
+ * Skillfolio design system — passports & official documents.
  * Light mode: paper and ink. Dark mode: the same passport under a desk lamp,
  * where the metal (brass) catches the light.
  */
 
 @theme inline {
-  --radius-sm: 2px;
-  --radius-md: 2px;
-  --radius-lg: 4px;
-  --radius-xl: 4px;
-  --radius-2xl: 4px;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+  --radius-2xl: 8px;
 
   --color-background: var(--color-bg);
   --color-foreground: var(--color-text-primary);
@@ -50,7 +50,7 @@
 }
 
 :root {
-  --radius: 4px;
+  --radius: 8px;
   --color-bg: #ece3cf;
   --color-surface-raw: #fbf6ea;
   --color-text-primary: #1c2a1e;
@@ -139,7 +139,7 @@
 @utility doc-card {
   background-color: var(--color-surface-raw);
   border: 1px solid var(--color-border-raw);
-  border-radius: 4px;
+  border-radius: 8px;
   transition: border-color 180ms ease-out;
 }
 

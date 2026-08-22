@@ -19,9 +19,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/matches")({
   head: () => ({
     meta: [
-      { title: "Matches — SkillPass" },
+      { title: "Matches — Skillfolio" },
       { name: "description", content: "Internship and team matches with the evidence behind each score, the skills still missing, and a fairness note on every card." },
-      { property: "og:title", content: "Matches — SkillPass" },
+      { property: "og:title", content: "Matches — Skillfolio" },
       { property: "og:description", content: "Explainable matching: evidence per requirement, named skill gaps, and bias-excluded scoring." },
     ],
   }),
@@ -88,7 +88,7 @@ export function MatchCard({ match }: { match: Match }) {
           />
         </button>
         {open && (
-          <div className="mt-3 rounded-[4px] border border-border bg-surface p-4 shadow-float">
+          <div className="mt-3 rounded-md border border-border bg-surface p-4 shadow-float">
             <Eyebrow>Evidence behind this score</Eyebrow>
             <ul className="mt-2 flex flex-col gap-2">
               {match.why.map((w) => (

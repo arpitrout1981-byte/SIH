@@ -18,9 +18,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/evidence")({
   head: () => ({
     meta: [
-      { title: "Evidence Vault — SkillPass" },
+      { title: "Evidence Vault — Skillfolio" },
       { name: "description", content: "Every course, project, competition, and micro-credential behind the passport, with verification status and the skills it feeds." },
-      { property: "og:title", content: "Evidence Vault — SkillPass" },
+      { property: "og:title", content: "Evidence Vault — Skillfolio" },
       { property: "og:description", content: "Traceable evidence records: coursework, projects, competitions, and micro-credentials." },
     ],
   }),
@@ -50,7 +50,7 @@ function AddEvidenceModal({ onClose }: { onClose: () => void }) {
   ];
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#14201B]/50 p-4 md:items-center" role="dialog" aria-modal="true" aria-label="Add evidence">
-      <div className="w-full max-w-lg rounded-[4px] border border-border bg-surface shadow-float">
+      <div className="w-full max-w-lg rounded-md border border-border bg-surface shadow-float">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <h2 className="font-slab text-[20px] leading-[26px] text-ink">Add Evidence</h2>
           <button type="button" onClick={onClose} aria-label="Close" className="text-ink-soft hover:text-ink">

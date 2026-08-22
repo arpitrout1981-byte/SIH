@@ -37,11 +37,11 @@ export type Match = {
 };
 
 export const profile = {
-  name: "Kirito",
+  name: "Admin",
   passportId: "SKP-2604821-IND",
   strength: 82,
   mrz: [
-    "SKPS<<KIRITO<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",
+    "SKPS<<ADMIN<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",
     "2604821<9IND2603<<<<<<<<<<<<<<<<<<<<<<<06",
   ],
 };

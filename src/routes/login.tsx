@@ -29,7 +29,7 @@ function LoginPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BadgeCheck size={26} strokeWidth={1.5} className="text-brass" />
-            <span className="font-slab text-xl text-ink">SkillPass</span>
+            <span className="font-slab text-xl text-ink">Skillfolio</span>
           </div>
           <ShieldCheck size={22} strokeWidth={1.5} className="text-brass" />
         </div>

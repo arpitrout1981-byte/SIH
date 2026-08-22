@@ -28,13 +28,13 @@ export const Route = createFileRoute("/")({
   },
   head: () => ({
     meta: [
-      { title: "SkillPass — Verified Skill Passport & Explainable Matching" },
+      { title: "Skillfolio — Verified Skill Passport & Explainable Matching" },
       {
         name: "description",
         content:
-          "SkillPass turns verified coursework, projects, competitions, and micro-credentials into one portable skill passport, then matches it to internships and teams with evidence, gaps, and fairness stated on screen.",
+          "Skillfolio turns verified coursework, projects, competitions, and micro-credentials into one portable skill passport, then matches it to internships and teams with evidence, gaps, and fairness stated on screen.",
       },
-      { property: "og:title", content: "SkillPass — Verified Skill Passport" },
+      { property: "og:title", content: "Skillfolio — Verified Skill Passport" },
       {
         property: "og:description",
         content: "One portable, evidence-backed skill passport with explainable, bias-free matching.",
